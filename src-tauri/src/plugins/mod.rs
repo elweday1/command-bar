@@ -1,8 +1,6 @@
-pub mod apps;
-pub mod files;
-pub mod google;
-pub mod processes;
-pub mod youtube;
+pub mod loader;
+
+// All plugins are dynamic - loaded from .build directory
 
 use std::collections::HashMap;
 
@@ -38,7 +36,7 @@ pub struct Plugin {
     pub config: Option<PluginConfig>,
 }
 
-pub trait PluginTrait {
+pub trait PluginTrait: Send + Sync {
     fn get_info(&self) -> Plugin;
     fn search(&self, query: &str) -> Vec<PluginResult>;
     fn execute_action(&self, result_id: &str, action_id: &str) -> Result<String, String>;

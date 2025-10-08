@@ -1,7 +1,7 @@
 mod commands;
 mod plugins;
 use commands::default::{
-    execute_plugin_action, get_is_window_shown, get_plugin_info, search_plugin, set_is_window_shown,
+    execute_plugin_action, get_is_window_shown, get_plugin_info, list_plugins, search_plugin, set_is_window_shown,
 };
 use commands::settings::{get_settings, open_settings_window, set_settings};
 use tauri::{
@@ -129,6 +129,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             search_plugin,
             get_plugin_info,
+            list_plugins,
             execute_plugin_action,
             get_is_window_shown,
             set_is_window_shown,

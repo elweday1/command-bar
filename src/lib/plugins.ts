@@ -30,24 +30,18 @@ export interface PluginAction {
 }
 
 export async function loadPlugins(): Promise<Plugin[]> {
-  const pluginIds = ["processes", "apps", "files", "youtube", "google"]
-  const plugins: Plugin[] = []
-
-  for (const id of pluginIds) {
-    try {
-      const pluginInfo = await invoke<Plugin>("get_plugin_info", { pluginId: id })
-      plugins.push({
-        ...pluginInfo,
-        search: async (query: string) => {
-          return await invoke<PluginResult[]>("search_plugin", { pluginId: id, query })
-        }
-      })
-    } catch (error) {
-      console.warn(`Failed to load plugin ${id}:`, error)
-    }
+  try {
+    const availablePlugins = await invoke<Plugin[]>("list_plugins")
+    return availablePlugins.map(pluginInfo => ({
+      ...pluginInfo,
+      search: async (query: string) => {
+        return await invoke<PluginResult[]>("search_plugin", { pluginId: pluginInfo.id, query })
+      }
+    }))
+  } catch (error) {
+    console.error("Failed to load plugins:", error)
+    return []
   }
-
-  return plugins
 }
 
 export async function executePluginAction(pluginId: string, resultId: string, actionId: string): Promise<string> {

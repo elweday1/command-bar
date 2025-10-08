@@ -1,20 +1,16 @@
-use crate::plugins::apps::AppsPlugin;
-use crate::plugins::files::FilesPlugin;
-use crate::plugins::google::GooglePlugin;
-use crate::plugins::processes::ProcessesPlugin;
-use crate::plugins::youtube::YouTubePlugin;
+use crate::plugins::loader::DynamicPluginLoader;
 use crate::plugins::*;
+use std::sync::OnceLock;
 use tauri::Manager;
 
-fn get_plugin(plugin_id: &str) -> Option<Box<dyn PluginTrait>> {
-    match plugin_id {
-        "processes" => Some(Box::new(ProcessesPlugin)),
-        "apps" => Some(Box::new(AppsPlugin)),
-        "files" => Some(Box::new(FilesPlugin)),
-        "youtube" => Some(Box::new(YouTubePlugin)),
-        "google" => Some(Box::new(GooglePlugin)),
-        _ => None,
-    }
+static PLUGIN_LOADER: OnceLock<DynamicPluginLoader> = OnceLock::new();
+
+fn get_loader() -> &'static DynamicPluginLoader {
+    PLUGIN_LOADER.get_or_init(|| {
+        let mut loader = DynamicPluginLoader::new();
+        loader.load_all_dynamic_plugins();
+        loader
+    })
 }
 
 #[tauri::command]
@@ -24,7 +20,7 @@ pub async fn execute_plugin_action(
     result_id: String,
     action_id: String,
 ) -> Result<String, String> {
-    let result = if let Some(plugin) = get_plugin(&plugin_id) {
+    let result = if let Some(plugin) = get_loader().get_plugin(&plugin_id) {
         plugin.execute_action(&result_id, &action_id)
     } else {
         Err("Plugin not found".to_string())
@@ -40,7 +36,7 @@ pub async fn execute_plugin_action(
 
 #[tauri::command]
 pub fn search_plugin(plugin_id: String, query: String) -> Vec<PluginResult> {
-    if let Some(plugin) = get_plugin(&plugin_id) {
+    if let Some(plugin) = get_loader().get_plugin(&plugin_id) {
         plugin.search(&query)
     } else {
         vec![]
@@ -49,11 +45,16 @@ pub fn search_plugin(plugin_id: String, query: String) -> Vec<PluginResult> {
 
 #[tauri::command]
 pub fn get_plugin_info(plugin_id: String) -> Result<Plugin, String> {
-    if let Some(plugin) = get_plugin(&plugin_id) {
+    if let Some(plugin) = get_loader().get_plugin(&plugin_id) {
         Ok(plugin.get_info())
     } else {
         Err("Plugin not found".to_string())
     }
+}
+
+#[tauri::command]
+pub fn list_plugins() -> Vec<Plugin> {
+    get_loader().list_plugins()
 }
 
 #[tauri::command]
