@@ -10,7 +10,7 @@
 </script>
 
 <div class="bg-foreground min-h-screen p-6">
-	<Card class="mx-auto max-w-md">
+	<Card class="mx-auto max-w-lg">
 		<CardHeader>
 			<CardTitle>Settings</CardTitle>
 		</CardHeader>
@@ -29,6 +29,25 @@
 					on:input={() => settingsStore.save()}
 					class="w-full"
 				/>
+			</div>
+
+			<div class="space-y-3">
+				<h3 class="text-sm font-medium">Plugins</h3>
+				{#each settingsStore.allPlugins as plugin}
+					<div class="flex items-center space-x-2">
+						<input
+							id="plugin-{plugin.id}"
+							type="checkbox"
+							checked={settingsStore.isPluginEnabled(plugin.id)}
+							on:change={(e) => settingsStore.togglePlugin(plugin.id, e.currentTarget.checked)}
+							class="rounded"
+						/>
+						<label for="plugin-{plugin.id}" class="text-sm flex items-center space-x-2">
+							<span>{plugin.icon}</span>
+							<span>{plugin.name}</span>
+						</label>
+					</div>
+				{/each}
 			</div>
 			<p class="text-sm text-muted-foreground text-center">
 				Settings are saved automatically

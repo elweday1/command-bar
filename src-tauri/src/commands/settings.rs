@@ -1,18 +1,7 @@
-use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::fs;
 use std::path::PathBuf;
 use tauri::{Emitter, Manager};
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Settings {
-    pub transparency: f64,
-}
-
-impl Default for Settings {
-    fn default() -> Self {
-        Self { transparency: 0.8 }
-    }
-}
 
 fn get_settings_path() -> Result<PathBuf, String> {
     dirs::home_dir()
@@ -21,7 +10,7 @@ fn get_settings_path() -> Result<PathBuf, String> {
 }
 
 #[tauri::command]
-pub fn get_settings() -> Result<Settings, String> {
+pub fn get_settings() -> Result<Value, String> {
     let settings_path = get_settings_path()?;
 
     if settings_path.exists() {
@@ -30,12 +19,12 @@ pub fn get_settings() -> Result<Settings, String> {
 
         serde_json::from_str(&content).map_err(|e| format!("Failed to parse settings: {}", e))
     } else {
-        Ok(Settings::default())
+        Ok(serde_json::json!({}))
     }
 }
 
 #[tauri::command]
-pub fn set_settings(settings: Settings, app: tauri::AppHandle) -> Result<(), String> {
+pub fn set_settings(settings: Value, app: tauri::AppHandle) -> Result<(), String> {
     let settings_path = get_settings_path()?;
 
     let content = serde_json::to_string_pretty(&settings)
@@ -62,7 +51,7 @@ pub fn open_settings_window(app: tauri::AppHandle) -> Result<(), String> {
         let _window =
             WebviewWindowBuilder::new(&app, "settings", WebviewUrl::App("/settings".into()))
                 .title("Command Bar Settings")
-                .inner_size(400.0, 300.0)
+                .inner_size(500.0, 400.0)
                 .resizable(false)
                 .center()
                 .decorations(true)

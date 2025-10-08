@@ -1,13 +1,16 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
+import type { Plugin } from '$lib/plugins';
 
 export interface Settings {
 	transparency: number;
+	enabledPlugins: Record<string, boolean>;
 }
 
 class SettingsStore {
-	settings = $state<Settings>({ transparency: 0.8 });
+	settings = $state<Settings>({ transparency: 0.8, enabledPlugins: {} });
 	loaded = $state(false);
+	allPlugins = $state<Plugin[]>([]);
 	private saveTimeout: NodeJS.Timeout | null = null;
 	private initialized = false;
 
@@ -36,11 +39,16 @@ class SettingsStore {
 
 	async load() {
 		try {
-			this.settings = await invoke('get_settings');
+			const settings = await invoke('get_settings') as any;
+			this.settings = {
+				transparency: settings.transparency || 0.8,
+				enabledPlugins: settings.enabledPlugins || {}
+			};
+			this.allPlugins = await invoke('list_plugins');
 			this.loaded = true;
 		} catch (error) {
 			console.error('Failed to load settings:', error);
-			this.settings = { transparency: 0.8 };
+			this.settings = { transparency: 0.8, enabledPlugins: {} };
 			this.loaded = true;
 		}
 	}
@@ -56,6 +64,15 @@ class SettingsStore {
 
 	get opacity() {
 		return this.settings.transparency;
+	}
+
+	isPluginEnabled(pluginId: string): boolean {
+		return this.settings.enabledPlugins[pluginId] !== false;
+	}
+
+	togglePlugin(pluginId: string, enabled: boolean) {
+		this.settings.enabledPlugins[pluginId] = enabled;
+		this.save();
 	}
 }
 

@@ -32,12 +32,17 @@ export interface PluginAction {
 export async function loadPlugins(): Promise<Plugin[]> {
   try {
     const availablePlugins = await invoke<Plugin[]>("list_plugins")
-    return availablePlugins.map(pluginInfo => ({
-      ...pluginInfo,
-      search: async (query: string) => {
-        return await invoke<PluginResult[]>("search_plugin", { pluginId: pluginInfo.id, query })
-      }
-    }))
+    const settings = await invoke("get_settings") as any
+    const enabledPlugins = settings?.enabledPlugins || {}
+    
+    return availablePlugins
+      .filter(plugin => enabledPlugins[plugin.id] !== false)
+      .map(pluginInfo => ({
+        ...pluginInfo,
+        search: async (query: string) => {
+          return await invoke<PluginResult[]>("search_plugin", { pluginId: pluginInfo.id, query })
+        }
+      }))
   } catch (error) {
     console.error("Failed to load plugins:", error)
     return []
