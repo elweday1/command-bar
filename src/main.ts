@@ -1,9 +1,9 @@
 import { mount } from 'svelte';
 import './app.css';
-import App from './App.svelte';
+import CommandBar from '$lib/components/CommandBar.svelte';
 
-const app = mount(App, {
+const CommandBarApp = mount(CommandBar, {
 	target: document.getElementById('app')!
 });
 
-export default app;
+export default CommandBarApp;

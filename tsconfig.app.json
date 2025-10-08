@@ -1,11 +1,13 @@
 {
 	"extends": "@tsconfig/svelte/tsconfig.json",
 	"compilerOptions": {
+		"types": ["svelte", "node"],
 		"baseUrl": ".",
 		"paths": {
 			"$lib": ["./src/lib"],
 			"$lib/*": ["./src/lib/*"]
 		},
+		"moduleResolution": "node",
 		"target": "ESNext",
 		"useDefineForClassFields": true,
 		"module": "ESNext",
