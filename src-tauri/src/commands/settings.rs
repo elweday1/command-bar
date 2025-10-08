@@ -41,6 +41,13 @@ pub fn set_settings(settings: Value, app: tauri::AppHandle) -> Result<(), String
 }
 
 #[tauri::command]
+pub fn update_shortcuts(app: tauri::AppHandle) -> Result<(), String> {
+    app.emit("shortcuts-changed", ())
+        .map_err(|e| format!("Failed to emit shortcuts event: {}", e))?;
+    Ok(())
+}
+
+#[tauri::command]
 pub fn open_settings_window(app: tauri::AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("settings") {
         let _ = window.show();

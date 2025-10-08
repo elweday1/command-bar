@@ -5,10 +5,21 @@ import type { Plugin } from '$lib/plugins';
 export interface Settings {
 	transparency: number;
 	enabledPlugins: Record<string, boolean>;
+	shortcuts: {
+		toggleWindow: string;
+		hideWindow: string;
+	};
 }
 
 class SettingsStore {
-	settings = $state<Settings>({ transparency: 0.8, enabledPlugins: {} });
+	settings = $state<Settings>({ 
+		transparency: 0.8, 
+		enabledPlugins: {},
+		shortcuts: {
+			toggleWindow: 'Ctrl+R',
+			hideWindow: 'Escape'
+		}
+	});
 	loaded = $state(false);
 	allPlugins = $state<Plugin[]>([]);
 	private saveTimeout: NodeJS.Timeout | null = null;
@@ -32,6 +43,7 @@ class SettingsStore {
 				}
 				this.saveTimeout = setTimeout(() => {
 					this.save();
+					this.updateShortcuts();
 				}, 500);
 			}
 		});
@@ -42,13 +54,24 @@ class SettingsStore {
 			const settings = await invoke('get_settings') as any;
 			this.settings = {
 				transparency: settings.transparency || 0.8,
-				enabledPlugins: settings.enabledPlugins || {}
+				enabledPlugins: settings.enabledPlugins || {},
+				shortcuts: settings.shortcuts || {
+					toggleWindow: 'Ctrl+R',
+					hideWindow: 'Escape'
+				}
 			};
 			this.allPlugins = await invoke('list_plugins');
 			this.loaded = true;
 		} catch (error) {
 			console.error('Failed to load settings:', error);
-			this.settings = { transparency: 0.8, enabledPlugins: {} };
+			this.settings = { 
+				transparency: 0.8, 
+				enabledPlugins: {},
+				shortcuts: {
+					toggleWindow: 'Ctrl+R',
+					hideWindow: 'Escape'
+				}
+			};
 			this.loaded = true;
 		}
 	}
@@ -73,6 +96,14 @@ class SettingsStore {
 	togglePlugin(pluginId: string, enabled: boolean) {
 		this.settings.enabledPlugins[pluginId] = enabled;
 		this.save();
+	}
+
+	async updateShortcuts() {
+		try {
+			await invoke('update_shortcuts');
+		} catch (error) {
+			console.error('Failed to update shortcuts:', error);
+		}
 	}
 }
 

@@ -1,15 +1,16 @@
 mod commands;
 mod plugins;
+mod shortcuts;
 use commands::default::{
-    execute_plugin_action, get_is_window_shown, get_plugin_info, list_plugins, search_plugin, set_is_window_shown,
+    execute_plugin_action, get_is_window_shown, get_plugin_info, list_plugins, search_plugin,
+    set_is_window_shown,
 };
-use commands::settings::{get_settings, open_settings_window, set_settings};
+use commands::settings::{get_settings, open_settings_window, set_settings, update_shortcuts};
 use tauri::{
     menu::{MenuBuilder, MenuItem},
     tray::{TrayIconBuilder, TrayIconEvent},
     App, Manager,
 };
-use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
 fn setup_tray(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let show = MenuItem::with_id(app, "show", "Show", true, None::<&str>)?;
@@ -80,41 +81,6 @@ fn setup_debug(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn setup_global_shortcuts(app: &App) -> Result<(), Box<dyn std::error::Error>> {
-    let ctrl_r_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyR);
-    let escape_shortcut = Shortcut::new(None, Code::Escape);
-
-    app.handle().plugin(
-        tauri_plugin_global_shortcut::Builder::new()
-            .with_handler(move |app, shortcut, event| {
-                if event.state() == ShortcutState::Pressed {
-                    if shortcut == &ctrl_r_shortcut {
-                        if let Some(window) = app.get_webview_window("main") {
-                            let is_visible = window.is_visible().unwrap_or(false);
-                            if is_visible {
-                                let _ = window.hide();
-                            } else {
-                                let _ = window.show();
-                                let _ = window.set_focus();
-                            }
-                        }
-                    } else if shortcut == &escape_shortcut {
-                        if let Some(window) = app.get_webview_window("main") {
-                            let _ = window.hide();
-                        }
-                    }
-                }
-            })
-            .build(),
-    )?;
-
-    app.global_shortcut()
-        .register(Shortcut::new(Some(Modifiers::CONTROL), Code::KeyR))?;
-    app.global_shortcut()
-        .register(Shortcut::new(None, Code::Escape))?;
-    Ok(())
-}
-
 #[allow(clippy::missing_panics_doc)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -123,7 +89,7 @@ pub fn run() {
         .setup(|app| {
             setup_tray(&*app)?;
             setup_debug(&*app)?;
-            setup_global_shortcuts(&*app)?;
+            shortcuts::setup_shortcuts(&*app)?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -135,6 +101,7 @@ pub fn run() {
             set_is_window_shown,
             get_settings,
             set_settings,
+            update_shortcuts,
             open_settings_window
         ])
         .run(tauri::generate_context!())

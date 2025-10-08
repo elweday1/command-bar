@@ -49,6 +49,32 @@
 					</div>
 				{/each}
 			</div>
+
+			<div class="space-y-3">
+				<h3 class="text-sm font-medium">Shortcuts</h3>
+				<div class="space-y-2">
+					<div class="flex items-center justify-between">
+						<label class="text-sm">Toggle Window:</label>
+						<input
+							type="text"
+							bind:value={settingsStore.settings.shortcuts.toggleWindow}
+							on:blur={() => settingsStore.save()}
+							class="px-2 py-1 text-xs border rounded w-24 text-center"
+							placeholder="Ctrl+R"
+						/>
+					</div>
+					<div class="flex items-center justify-between">
+						<label class="text-sm">Hide Window:</label>
+						<input
+							type="text"
+							bind:value={settingsStore.settings.shortcuts.hideWindow}
+							on:blur={() => settingsStore.save()}
+							class="px-2 py-1 text-xs border rounded w-24 text-center"
+							placeholder="Escape"
+						/>
+					</div>
+				</div>
+			</div>
 			<p class="text-sm text-muted-foreground text-center">
 				Settings are saved automatically
 			</p>
