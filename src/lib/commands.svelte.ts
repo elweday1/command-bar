@@ -1,7 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
-import { getCurrentWindow } from '@tauri-apps/api/window';
 import { loadPlugins, executePluginAction, type Plugin, type PluginResult } from '$lib/plugins'
-const appWindow = getCurrentWindow();
+
 
 export const preventDefault = <T extends Event>(fn: (e: T) => void): ((e: T) => void) => {
 	return (e: T) => {
@@ -55,7 +54,7 @@ export class GlobalState {
 						// Search across all plugins
 						const allResults = await Promise.all(this.plugins.map((plugin) => plugin.search(this.query)));
 						const flatResults = allResults.flat();
-						
+
 						// Add Google search as fallback if no results
 						if (flatResults.length === 0) {
 							const googlePlugin = this.plugins.find(p => p.id === 'google');
@@ -128,7 +127,7 @@ export class GlobalState {
 			this.executeSelectedAction();
 		} else if (e.key === 'Escape') {
 			e.preventDefault();
-			this.hideWindow();
+			this.handleBackdropClick();
 		}
 	}
 
@@ -140,17 +139,7 @@ export class GlobalState {
 		}
 	}
 
-	// Hide window
-	async hideWindow() {
-		try {
-			await appWindow.hide();
-			this.query = '';
-			this.selectedIndex = 0;
-			this.activePlugin = null;
-		} catch (error) {
-			console.error('Failed to hide window:', error);
-		}
-	}
+
 
 	// Execute selected action
 	async executeSelectedAction() {
@@ -170,7 +159,7 @@ export class GlobalState {
 						}
 					}
 				}
-				
+
 				if (pluginId) {
 					try {
 						await executePluginAction(pluginId, selected.id, primaryAction.id);
@@ -187,23 +176,14 @@ export class GlobalState {
 		this.selectedIndex = index;
 	}
 
-	// Global keyboard shortcut
-	handleGlobalKeyDown(e: KeyboardEvent) {
-		if ((e.metaKey || e.ctrlKey) && e.key === 'r') {
-			e.preventDefault();
-			this.toggleWindow();
-		}
-	}
 
-	// Toggle window visibility
-	async toggleWindow() {
-		try {
-			await invoke('toggle_window');
-			this.query = '';
-			this.selectedIndex = 0;
-		} catch (error) {
-			console.error('Failed to toggle window:', error);
-		}
+
+	// Handle backdrop click
+	async handleBackdropClick() {
+		await invoke('set_is_window_shown', { shown: false });
+		this.query = '';
+		this.selectedIndex = 0;
+		this.activePlugin = null;
 	}
 
 	// Execute plugin action

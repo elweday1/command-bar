@@ -1,14 +1,14 @@
 mod commands;
 mod plugins;
 use commands::default::{
-    execute_plugin_action, get_all_processes, get_plugin_info, search_plugin, toggle_window,
+    execute_plugin_action, get_is_window_shown, get_plugin_info, search_plugin, set_is_window_shown,
 };
 use tauri::{
     menu::{MenuBuilder, MenuItem},
     tray::{TrayIconBuilder, TrayIconEvent},
     App, Manager,
 };
-use tauri_plugin_global_shortcut::{Code, Modifiers, ShortcutState};
+use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
 fn setup_tray(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let show = MenuItem::with_id(app, "show", "Show", true, None::<&str>)?;
@@ -62,48 +62,69 @@ fn setup_tray(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+fn setup_debug(app: &App) -> Result<(), Box<dyn std::error::Error>> {
+    if cfg!(debug_assertions) {
+        app.handle().plugin(
+            tauri_plugin_log::Builder::default()
+                .level(log::LevelFilter::Info)
+                .build(),
+        )?;
+    }
+    Ok(())
+}
+
+fn setup_global_shortcuts(app: &App) -> Result<(), Box<dyn std::error::Error>> {
+    let ctrl_r_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyR);
+    let escape_shortcut = Shortcut::new(None, Code::Escape);
+
+    app.handle().plugin(
+        tauri_plugin_global_shortcut::Builder::new()
+            .with_handler(move |app, shortcut, event| {
+                if event.state() == ShortcutState::Pressed {
+                    if shortcut == &ctrl_r_shortcut {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let is_visible = window.is_visible().unwrap_or(false);
+                            if is_visible {
+                                let _ = window.hide();
+                            } else {
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                            }
+                        }
+                    } else if shortcut == &escape_shortcut {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.hide();
+                        }
+                    }
+                }
+            })
+            .build(),
+    )?;
+
+    app.global_shortcut()
+        .register(Shortcut::new(Some(Modifiers::CONTROL), Code::KeyR))?;
+    app.global_shortcut()
+        .register(Shortcut::new(None, Code::Escape))?;
+    Ok(())
+}
+
 #[allow(clippy::missing_panics_doc)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            if cfg!(debug_assertions) {
-                app.handle().plugin(
-                    tauri_plugin_log::Builder::default()
-                        .level(log::LevelFilter::Info)
-                        .build(),
-                )?;
-            }
-            setup_tray(app);
-
-            // Register global shortcut
-            app.handle().plugin(
-                tauri_plugin_global_shortcut::Builder::new()
-                    .with_shortcuts(["ctrl+r"])?
-                    .with_handler(|app, shortcut, event| {
-                        if event.state == ShortcutState::Pressed {
-                            if let Some(window) = app.get_webview_window("main") {
-                                if window.is_visible().unwrap_or(false) {
-                                    let _ = window.hide();
-                                } else {
-                                    let _ = window.show();
-                                    let _ = window.set_focus();
-                                }
-                            }
-                        }
-                    })
-                    .build(),
-            )?;
-
+            setup_tray(&*app)?;
+            setup_debug(&*app)?;
+            setup_global_shortcuts(&*app)?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            get_all_processes,
             search_plugin,
             get_plugin_info,
             execute_plugin_action,
-            toggle_window
+            get_is_window_shown,
+            set_is_window_shown
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

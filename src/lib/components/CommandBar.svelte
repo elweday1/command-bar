@@ -7,11 +7,9 @@
 	const api = new GlobalState();
 </script>
 
-<svelte:window onkeydown={(e) => api.handleGlobalKeyDown(e)} />
-
 <div
 	class="fixed inset-0 z-50 flex items-start justify-center pt-[20vh]"
-	onclick={() => api.hideWindow()}
+	onclick={() => api.handleBackdropClick()}
 >
 	<div
 		class="animate-in fade-in slide-in-from-top-4 w-full max-w-2xl duration-200"
