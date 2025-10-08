@@ -31,13 +31,15 @@
         "label": "settings",
         "title": "Command Bar Settings",
         "url": "/settings",
-        "width": 400,
-        "height": 300,
-        "resizable": false,
+        "width": 900,
+        "height": 600,
+        "resizable": true,
         "center": true,
         "visible": false,
         "decorations": true,
-        "transparent": false
+        "transparent": false,
+        "minWidth": 700,
+        "minHeight": 500
       }
     ],
     "security": {
