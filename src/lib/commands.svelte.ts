@@ -139,6 +139,20 @@ export class GlobalState {
 		}
 	}
 
+	selectPlugin(plugin: Plugin) {
+		this.query = `${plugin.prefix} `;
+		setTimeout(() => {
+			this.inputElement?.focus();
+			if (this.inputElement) {
+				this.inputElement.setSelectionRange(
+					this.inputElement.value.length,
+					this.inputElement.value.length
+				);
+			}
+		}, 0);
+
+	}
+
 
 
 	// Execute selected action

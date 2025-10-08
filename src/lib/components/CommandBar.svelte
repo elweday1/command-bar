@@ -55,7 +55,7 @@
 						<div class="text-xs font-medium text-white/50">Available Plugins</div>
 						{#each api.plugins as plugin}
 							<button
-								onclick={() => (api.query = `${plugin.prefix} `)}
+								onclick={() => api.selectPlugin(plugin)}
 								class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-white/10"
 							>
 								<Icon class="w-7" name={plugin.icon} />
