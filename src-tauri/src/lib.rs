@@ -3,6 +3,7 @@ mod plugins;
 use commands::default::{
     execute_plugin_action, get_is_window_shown, get_plugin_info, search_plugin, set_is_window_shown,
 };
+use commands::settings::{get_settings, open_settings_window, set_settings};
 use tauri::{
     menu::{MenuBuilder, MenuItem},
     tray::{TrayIconBuilder, TrayIconEvent},
@@ -12,8 +13,11 @@ use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut,
 
 fn setup_tray(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let show = MenuItem::with_id(app, "show", "Show", true, None::<&str>)?;
+    let settings = MenuItem::with_id(app, "settings", "Settings", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-    let menu = MenuBuilder::new(app).items(&[&show, &quit]).build()?;
+    let menu = MenuBuilder::new(app)
+        .items(&[&show, &settings, &quit])
+        .build()?;
     let _tray = TrayIconBuilder::with_id("tray")
         .icon(app.default_window_icon().unwrap().clone())
         .menu(&menu)
@@ -26,6 +30,9 @@ fn setup_tray(app: &App) -> Result<(), Box<dyn std::error::Error>> {
                     let _ = window.show();
                     let _ = window.set_focus();
                 }
+            }
+            "settings" => {
+                let _ = open_settings_window(app.app_handle().clone());
             }
             "quit" => {
                 app.exit(0);
@@ -124,7 +131,10 @@ pub fn run() {
             get_plugin_info,
             execute_plugin_action,
             get_is_window_shown,
-            set_is_window_shown
+            set_is_window_shown,
+            get_settings,
+            set_settings,
+            open_settings_window
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

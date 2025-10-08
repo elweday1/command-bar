@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { loadPlugins, executePluginAction, type Plugin, type PluginResult } from '$lib/plugins'
 
+import { listen, TauriEvent } from '@tauri-apps/api/event';
 
 export const preventDefault = <T extends Event>(fn: (e: T) => void): ((e: T) => void) => {
 	return (e: T) => {
@@ -24,6 +25,16 @@ export class GlobalState {
 		loadPlugins().then(plugins => {
 			this.plugins = plugins;
 		});
+
+		listen(TauriEvent.WINDOW_BLUR, async () => {
+			await invoke('set_is_window_shown', { shown: false });
+		}, {
+			target: {
+				kind: "WebviewWindow",
+				label: "main"
+			}
+		});
+
 
 		$effect(() => {
 			if (this.detectedPlugin && this.detectedPlugin !== this.activePlugin) {
@@ -51,12 +62,18 @@ export class GlobalState {
 						const pluginResults = await this.activePlugin.search(this.searchQuery);
 						this.results = pluginResults;
 					} else {
+						// Check for built-in commands first
+						const builtInResults = this.searchBuiltInCommands(this.query);
+
 						// Search across all plugins
 						const allResults = await Promise.all(this.plugins.map((plugin) => plugin.search(this.query)));
 						const flatResults = allResults.flat();
 
+						// Combine built-in and plugin results
+						const combinedResults = [...builtInResults, ...flatResults];
+
 						// Add Google search as fallback if no results
-						if (flatResults.length === 0) {
+						if (combinedResults.length === 0) {
 							const googlePlugin = this.plugins.find(p => p.id === 'google');
 							if (googlePlugin) {
 								const googleResults = await googlePlugin.search(this.query);
@@ -65,7 +82,7 @@ export class GlobalState {
 								this.results = [];
 							}
 						} else {
-							this.results = flatResults;
+							this.results = combinedResults;
 						}
 					}
 					this.selectedIndex = 0;
@@ -155,12 +172,41 @@ export class GlobalState {
 
 
 
+	// Search built-in commands
+	searchBuiltInCommands(query: string) {
+		const commands = [
+			{
+				id: 'settings',
+				title: 'Settings',
+				subtitle: 'Open Command Bar settings',
+				icon: 'settings',
+				actions: [{ id: 'open', label: 'Open' }]
+			}
+		];
+
+		return commands.filter(cmd =>
+			cmd.title.toLowerCase().includes(query.toLowerCase()) ||
+			cmd.subtitle.toLowerCase().includes(query.toLowerCase())
+		);
+	}
+
 	// Execute selected action
 	async executeSelectedAction() {
 		const selected = this.results[this.selectedIndex];
 		if (selected && (selected.actions?.length ?? 0) > 0) {
 			const primaryAction = selected.actions?.[0];
 			if (primaryAction) {
+				// Handle built-in commands
+				if (selected.id === 'settings' && primaryAction.id === 'open') {
+					try {
+						await invoke('open_settings_window');
+						await this.handleBackdropClick();
+					} catch (error) {
+						console.error('Failed to open settings:', error);
+					}
+					return;
+				}
+
 				// Determine plugin ID - use active plugin or find by result
 				let pluginId = this.activePlugin?.id;
 				if (!pluginId) {

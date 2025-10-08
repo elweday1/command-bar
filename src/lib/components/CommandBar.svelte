@@ -2,9 +2,20 @@
 	import { GlobalState } from '$lib/commands.svelte';
 	import { cn } from '$lib/utils.js';
 	import Icon from './Icon.svelte';
+	import { settingsStore, type Settings } from '$lib/stores/settings.svelte';
+	import { onMount } from 'svelte';
 	import '../../app.css';
+	import { listen } from '@tauri-apps/api/event';
 
 	const api = new GlobalState();
+
+	onMount(() => {
+		listen('settings-changed', (event) => {
+			settingsStore.settings = event.payload as Settings;
+			settingsStore.load();
+		});
+		settingsStore.load();
+	});
 </script>
 
 <div
@@ -16,7 +27,8 @@
 		onclick={(e) => e.stopPropagation()}
 	>
 		<div
-			class="flex max-h-[70vh] flex-col overflow-hidden rounded-xl border border-white/10 bg-black/80 shadow-2xl backdrop-blur-xl"
+			class="bg-foreground flex max-h-[70vh] flex-col overflow-hidden rounded-xl border border-white/10 shadow-2xl backdrop-blur-xl"
+			style="opacity: {settingsStore.loaded ? settingsStore.opacity : 0.8}"
 		>
 			<div class="flex items-center gap-3 border-b border-white/10 px-4 py-3">
 				{#if api.activePlugin}

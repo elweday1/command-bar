@@ -13,12 +13,12 @@
     "withGlobalTauri": false,
     "windows": [
       {
+        "label": "main",
         "decorations": false,
         "title": "Command Bar",
         "resizable": false,
         "fullscreen": false,
         "transparent": true,
-        
         "center": true,
         "skipTaskbar": true,
         "visible": true,
@@ -26,6 +26,18 @@
         "width": 800,
         "height": 600,
         "shadow": false
+      },
+      {
+        "label": "settings",
+        "title": "Command Bar Settings",
+        "url": "/settings",
+        "width": 400,
+        "height": 300,
+        "resizable": false,
+        "center": true,
+        "visible": false,
+        "decorations": true,
+        "transparent": false
       }
     ],
     "security": {
