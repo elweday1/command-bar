@@ -160,7 +160,16 @@
 						</span>
 					</div>
 				{/if}
-				<span>{api.results.length} results</span>
+				{#if api.results.length === 0}
+					<span onclick={() => settingsStore.openSettings()} class="flex items-center gap-1">
+						<kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono"
+							>{settingsStore.settings.shortcuts.openSettings}</kbd
+						>
+						Settings
+					</span>
+				{:else}
+					<span>{api.results.length} results</span>
+				{/if}
 			</div>
 		</div>
 	</div>

@@ -8,6 +8,7 @@ export interface Settings {
 	shortcuts: {
 		toggleWindow: string;
 		hideWindow: string;
+		openSettings: string;
 	};
 }
 
@@ -17,7 +18,8 @@ class SettingsStore {
 		enabledPlugins: {},
 		shortcuts: {
 			toggleWindow: 'Ctrl+R',
-			hideWindow: 'Escape'
+			hideWindow: 'Escape',
+			openSettings: 'Ctrl+Comma'
 		}
 	});
 	loaded = $state(false);
@@ -57,7 +59,8 @@ class SettingsStore {
 				enabledPlugins: settings.enabledPlugins || {},
 				shortcuts: settings.shortcuts || {
 					toggleWindow: 'Ctrl+R',
-					hideWindow: 'Escape'
+					hideWindow: 'Escape',
+					openSettings: 'Ctrl+Comma'
 				}
 			};
 			this.allPlugins = await invoke('list_plugins');
@@ -69,7 +72,8 @@ class SettingsStore {
 				enabledPlugins: {},
 				shortcuts: {
 					toggleWindow: 'Ctrl+R',
-					hideWindow: 'Escape'
+					hideWindow: 'Escape',
+					openSettings: 'Ctrl+Comma'
 				}
 			};
 			this.loaded = true;
@@ -103,6 +107,14 @@ class SettingsStore {
 			await invoke('update_shortcuts');
 		} catch (error) {
 			console.error('Failed to update shortcuts:', error);
+		}
+	}
+
+	async openSettings() {
+		try {
+			await invoke('open_settings_window');
+		} catch (error) {
+			console.error('Failed to open settings:', error);
 		}
 	}
 }

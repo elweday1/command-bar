@@ -73,6 +73,16 @@
 							placeholder="Escape"
 						/>
 					</div>
+					<div class="flex items-center justify-between">
+						<label class="text-sm">Open Settings:</label>
+						<input
+							type="text"
+							bind:value={settingsStore.settings.shortcuts.openSettings}
+							on:blur={() => settingsStore.save()}
+							class="px-2 py-1 text-xs border rounded w-24 text-center"
+							placeholder="Ctrl+Comma"
+						/>
+					</div>
 				</div>
 			</div>
 			<p class="text-sm text-muted-foreground text-center">
