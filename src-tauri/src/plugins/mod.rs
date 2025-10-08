@@ -36,8 +36,9 @@ pub struct Plugin {
     pub config: Option<PluginConfig>,
 }
 
+#[async_trait::async_trait]
 pub trait PluginTrait: Send + Sync {
     fn get_info(&self) -> Plugin;
-    fn search(&self, query: &str) -> Vec<PluginResult>;
+    async fn search(&self, query: &str) -> Vec<PluginResult>;
     fn execute_action(&self, result_id: &str, action_id: &str) -> Result<String, String>;
 }

@@ -160,6 +160,7 @@ name = "app"
 version = "1.0.0"
 dependencies = [
  "app-finder",
+ "async-trait",
  "dirs 5.0.1",
  "libloading 0.8.9",
  "log",
