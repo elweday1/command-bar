@@ -341,9 +341,6 @@ fn generate_example_colors() -> String {
     let mut html = String::new();
 
     html.push_str("<div style=\"padding: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 200px; overflow: hidden;\">");
-    html.push_str(
-        "<h3 style=\"margin: 0 0 12px 0; color: white; font-size: 16px;\">🎨 Color Converter</h3>",
-    );
     html.push_str("<p style=\"margin: 0 0 16px 0; color: rgba(255,255,255,0.7); font-size: 13px;\">Enter a color in any format to convert and preview it</p>");
 
     html.push_str("<div style=\"display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 16px;\">");
