@@ -26,15 +26,15 @@ impl PluginTrait for DynamicPlugin {
         tokio::task::spawn_blocking({
             let search_fn = self.search;
             let query = query.to_string();
-            move || {
-                match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    search_fn(query)
-                })) {
-                    Ok(results) => results,
-                    Err(_) => PluginSearchResult::Results(vec![])
-                }
+            move || match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                search_fn(query)
+            })) {
+                Ok(results) => results,
+                Err(_) => PluginSearchResult::Results(vec![]),
             }
-        }).await.unwrap_or(PluginSearchResult::Results(vec![]))
+        })
+        .await
+        .unwrap_or(PluginSearchResult::Results(vec![]))
     }
 
     fn execute_action(&self, result_id: &str, action_id: &str) -> Result<String, String> {
@@ -127,21 +127,12 @@ impl DynamicPluginLoader {
     pub fn load_all_dynamic_plugins(&mut self) {
         println!("Starting dynamic plugin loading...");
 
-        if let Some(home_dir) = dirs::home_dir() {
-            println!("Home dir: {:?}", home_dir);
-            let build_dir = home_dir
-                .join(".config")
-                .join("command-bar")
-                .join("plugins")
-                .join(".build");
-            println!("Looking for plugins in: {:?}", build_dir);
-            println!("Directory exists: {}", build_dir.exists());
+        let build_dir = crate::constants::get_plugins_dir();
+        println!("Looking for plugins in: {:?}", build_dir);
+        println!("Directory exists: {}", build_dir.exists());
 
-            if let Err(e) = self.load_plugins_from_directory(&build_dir) {
-                eprintln!("Failed to load plugins from {:?}: {}", build_dir, e);
-            }
-        } else {
-            println!("No home directory found");
+        if let Err(e) = self.load_plugins_from_directory(&build_dir) {
+            eprintln!("Failed to load plugins from {:?}: {}", build_dir, e);
         }
 
         println!("Total plugins loaded: {}", self.list_plugins().len());

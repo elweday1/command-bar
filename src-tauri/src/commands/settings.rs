@@ -1,17 +1,11 @@
+use crate::constants::get_settings_path;
 use serde_json::Value;
 use std::fs;
-use std::path::PathBuf;
 use tauri::{Emitter, Manager};
-
-fn get_settings_path() -> Result<PathBuf, String> {
-    dirs::home_dir()
-        .map(|home| home.join(".command-bar-settings.json"))
-        .ok_or_else(|| "Could not find home directory".to_string())
-}
 
 #[tauri::command]
 pub fn get_settings() -> Result<Value, String> {
-    let settings_path = get_settings_path()?;
+    let settings_path = get_settings_path();
 
     if settings_path.exists() {
         let content = fs::read_to_string(&settings_path)
@@ -25,7 +19,7 @@ pub fn get_settings() -> Result<Value, String> {
 
 #[tauri::command]
 pub fn set_settings(settings: Value, app: tauri::AppHandle) -> Result<(), String> {
-    let settings_path = get_settings_path()?;
+    let settings_path = get_settings_path();
 
     let content = serde_json::to_string_pretty(&settings)
         .map_err(|e| format!("Failed to serialize settings: {}", e))?;

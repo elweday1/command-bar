@@ -1,4 +1,5 @@
 mod commands;
+mod constants;
 mod plugins;
 mod shortcuts;
 use commands::default::{
