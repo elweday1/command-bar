@@ -156,28 +156,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e16d2d3311acee920a9eb8d33b8cbc1787ce4a264e85f964c2404b969bdcd487"
 
 [[package]]
-name = "app"
-version = "1.0.0"
-dependencies = [
- "app-finder",
- "async-trait",
- "dirs 5.0.1",
- "libloading 0.8.9",
- "log",
- "serde",
- "serde_json",
- "sysinfo 0.36.1",
- "tauri",
- "tauri-build",
- "tauri-plugin-global-shortcut",
- "tauri-plugin-log",
- "tauri-plugin-opener",
- "thiserror 2.0.12",
- "tokio",
- "urlencoding",
-]
-
-[[package]]
 name = "app-finder"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1125,6 +1103,28 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.104",
+]
+
+[[package]]
+name = "dossier"
+version = "2.0.0"
+dependencies = [
+ "app-finder",
+ "async-trait",
+ "dirs 5.0.1",
+ "libloading 0.8.9",
+ "log",
+ "serde",
+ "serde_json",
+ "sysinfo 0.36.1",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-global-shortcut",
+ "tauri-plugin-log",
+ "tauri-plugin-opener",
+ "thiserror 2.0.12",
+ "tokio",
+ "urlencoding",
 ]
 
 [[package]]

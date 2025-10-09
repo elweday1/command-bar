@@ -1,10 +1,10 @@
 [package]
-name = "app"
-version = "1.0.0"
-description = "A simple desktop application template combining Tauri 2 with Svelte 5 and shadcn-svelte with a basic ci/cd implemented."
+name = "dossier"
+version = "2.0.0"
+description = "A modern, extensible command launcher built with Tauri 2 and Svelte 5."
 authors = ["Alysonhower Veras Vieira"]
 license = "MIT"
-repository = "alysonhower/tauri2-svelte5-shadcn"
+repository = "alysonhower/dossier"
 edition = "2021"
 rust-version = "1.77.2"
 

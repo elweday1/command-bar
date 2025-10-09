@@ -1,67 +1,58 @@
-# Tauri 2 Svelte 5 Shadcn
+# Dossier
 
-Simple boilerplate for Tauri 2 with Svelte 5 (and shadcn-svelte).
+![Dossier-Cover](./dossier-cover.jpg)
+A modern, extensible command launcher built with Tauri 2 and Svelte 5. Dossier provides a fast, keyboard-driven interface to search and execute commands, launch applications, and interact with various plugins.
 
-## Requirements
+## Features
 
-In order to run this boilerplate, you need to install Node (via nvm) and Rust. If you are on Windows I also recommend installing MSVC before the other dependencies (make sure to check the "Desktop development with C++" workload).
+- **Plugin System**: Extensible architecture with support for custom plugins
+- **Global Shortcuts**: Quick access from anywhere on your system
+- **Modern UI**: Built with Svelte 5 and shadcn-svelte components
+- **Cross-Platform**: Runs on Windows, macOS, and Linux
+- **Fast Search**: Instant results with fuzzy matching
+- **Customizable**: Settings window for configuration
 
-Some useful links:
+## Development
 
-- https://github.com/coreybutler/nvm-windows/releases (Windows: pick the nvm installer)
-- https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating (Linux: run `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash`)
-- https://www.rust-lang.org/tools/install
-- https://visualstudio.microsoft.com/vs/community/
+### Start development server
 
-## Setup
-
-1. Click the "Use this template" button on GitHub.
-2. Clone your newly created repository:
-   ```
-   git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
-   cd YOUR_REPOSITORY_NAME
-   ```
-3. Install dependencies:
-   ```
-   npm i
-   ```
-
-## Useful commands
-
-### Start dev server
-
-```
+```bash
 npm run tauri dev
 ```
 
-### Build executable
+### Build for production
 
-```
+```bash
 npm run tauri build
 ```
 
-### Add shadcn-svelte component
+### Code quality
 
+```bash
+npm run lint    # Check code style
+npm run format  # Format code
+npm run check   # Type checking
 ```
-npx shadcn-svelte@next add <component>
-```
 
-Replace `<component>` with the name of the component you want to add (e.g., button, card, dialog). You can find the full list of available components at https://next.shadcn-svelte.com/docs/components.
+## Usage
 
-## Other links
+- Press the global shortcut to open Dossier
+- Type to search for commands, applications, or use plugin prefixes
+- Use arrow keys to navigate results
+- Press Enter to execute the selected action
+- Press Escape to close
 
-### Svelte 5
+## Plugin Development
 
-https://svelte.dev/docs
+Dossier supports custom plugins. Check the `src/lib/plugins.ts` file for the plugin interface and examples.
 
-### Tauri 2
+## Tech Stack
 
-https://tauri.app/start/
-
-### shadcn-svelte
-
-https://next.shadcn-svelte.com/
+- **Frontend**: Svelte 5, TypeScript, Tailwind CSS 4
+- **Backend**: Rust, Tauri 2
+- **UI Components**: shadcn-svelte
+- **Build Tool**: Vite
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.

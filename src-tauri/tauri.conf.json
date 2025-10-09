@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "command-bar",
+  "productName": "Dossier",
   "version": "2.0.0",
-  "identifier": "com.command-bar.dev",
+  "identifier": "com.dossier.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
@@ -15,7 +15,7 @@
       {
         "label": "main",
         "decorations": false,
-        "title": "Command Bar",
+        "title": "Dossier",
         "resizable": false,
         "fullscreen": false,
         "transparent": true,
@@ -29,7 +29,7 @@
       },
       {
         "label": "settings",
-        "title": "Command Bar Settings",
+        "title": "Dossier Settings",
         "url": "/settings",
         "width": 900,
         "height": 600,

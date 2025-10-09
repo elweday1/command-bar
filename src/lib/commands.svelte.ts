@@ -195,7 +195,7 @@ export class GlobalState {
 			{
 				id: 'settings',
 				title: 'Settings',
-				subtitle: 'Open Command Bar settings',
+				subtitle: 'Open Dossier settings',
 				icon: 'settings',
 				actions: [{ id: 'open', label: 'Open' }]
 			}
