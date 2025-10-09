@@ -13,6 +13,7 @@ export const preventDefault = <T extends Event>(fn: (e: T) => void): ((e: T) => 
 export class GlobalState {
 	query = $state('')
 	results = $state<PluginResult[]>([])
+	htmlContent = $state<string | null>(null)
 	selectedIndex = $state(0)
 	isLoading = $state(false)
 	activePlugin = $state<Plugin | null>(null)
@@ -49,6 +50,7 @@ export class GlobalState {
 		$effect(() => {
 			if (!this.query.trim()) {
 				this.results = [];
+				this.htmlContent = null;
 				this.selectedIndex = 0;
 				return;
 			}
@@ -60,14 +62,20 @@ export class GlobalState {
 					if (this.activePlugin) {
 						// Search only in active plugin
 						const pluginResults = await this.activePlugin.search(this.searchQuery);
-						this.results = pluginResults;
+						if (Array.isArray(pluginResults)) {
+							this.results = pluginResults;
+							this.htmlContent = null;
+						} else {
+							this.results = [];
+							this.htmlContent = pluginResults.html;
+						}
 					} else {
 						// Check for built-in commands first
 						const builtInResults = this.searchBuiltInCommands(this.query);
 
 						// Search across all plugins
 						const allResults = await Promise.all(this.plugins.map((plugin) => plugin.search(this.query)));
-						const flatResults = allResults.flat();
+						const flatResults = allResults.filter(r => Array.isArray(r)).flat() as PluginResult[];
 
 						// Combine built-in and plugin results
 						const combinedResults = [...builtInResults, ...flatResults];
@@ -77,18 +85,27 @@ export class GlobalState {
 							const googlePlugin = this.plugins.find(p => p.id === 'google');
 							if (googlePlugin) {
 								const googleResults = await googlePlugin.search(this.query);
-								this.results = googleResults;
+								if (Array.isArray(googleResults)) {
+									this.results = googleResults;
+									this.htmlContent = null;
+								} else {
+									this.results = [];
+									this.htmlContent = googleResults.html;
+								}
 							} else {
 								this.results = [];
+								this.htmlContent = null;
 							}
 						} else {
 							this.results = combinedResults;
+							this.htmlContent = null;
 						}
 					}
 					this.selectedIndex = 0;
 				} catch (error) {
 					console.error('[v0] Search error:', error);
 					this.results = [];
+					this.htmlContent = null;
 				} finally {
 					this.isLoading = false;
 				}
@@ -244,6 +261,7 @@ export class GlobalState {
 		this.query = '';
 		this.selectedIndex = 0;
 		this.activePlugin = null;
+		this.htmlContent = null;
 	}
 
 	// Execute plugin action

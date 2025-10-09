@@ -26,6 +26,18 @@ pub struct PluginResult {
     pub actions: Option<Vec<PluginAction>>,
 }
 
+#[derive(serde::Serialize, Clone)]
+pub struct PluginHtmlResult {
+    pub html: String,
+}
+
+#[derive(serde::Serialize, Clone)]
+#[serde(untagged)]
+pub enum PluginSearchResult {
+    Results(Vec<PluginResult>),
+    Html(PluginHtmlResult),
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct Plugin {
     pub id: String,
@@ -39,6 +51,6 @@ pub struct Plugin {
 #[async_trait::async_trait]
 pub trait PluginTrait: Send + Sync {
     fn get_info(&self) -> Plugin;
-    async fn search(&self, query: &str) -> Vec<PluginResult>;
+    async fn search(&self, query: &str) -> PluginSearchResult;
     fn execute_action(&self, result_id: &str, action_id: &str) -> Result<String, String>;
 }

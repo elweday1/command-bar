@@ -54,76 +54,84 @@
 					></div>
 				{/if}
 			</div>
-			<ul
+			<div
 				class="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20 hover:scrollbar-thumb-white/30 flex-1 overflow-y-auto"
 				bind:this={api.resultsElement}
 			>
-				{#if api.results.length === 0 && api.query.trim() && !api.isLoading}
-					<div class="px-4 py-8 text-center text-sm text-white/50">No results found</div>
-				{/if}
-
-				{#if api.results.length === 0 && !api.query.trim()}
-					<div class="space-y-3 px-4 py-4">
-						<div class="text-xs font-medium text-white/50">Available Plugins</div>
-						{#each api.plugins as plugin}
-							<button
-								onclick={() => api.selectPlugin(plugin)}
-								class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-white/10"
-							>
-								<Icon class="w-7" name={plugin.icon} />
-								<div class="flex-1">
-									<div class="text-sm font-medium text-white">{plugin.name}</div>
-									<div class="text-xs text-white/50">{plugin.description}</div>
-								</div>
-								<kbd class="rounded bg-white/10 px-2 py-1 font-mono text-xs text-white/50">
-									{plugin.prefix}
-								</kbd>
-							</button>
-						{/each}
+				{#if api.htmlContent}
+					<div class="text-white">
+						{@html api.htmlContent}
 					</div>
-				{/if}
+				{:else}
+					<ul>
+						{#if api.results.length === 0 && api.query.trim() && !api.isLoading}
+							<div class="px-4 py-8 text-center text-sm text-white/50">No results found</div>
+						{/if}
 
-				{#each api.results as result, index}
-					<li
-						bind:this={api.resultElements[index]}
-						onmouseenter={() => api.handleMouseEnter(index)}
-						onclick={() => api.executeSelectedAction()}
-						class={cn(
-							'cursor-pointer border-b border-white/10 px-4 py-3 last:border-0',
-							index === api.selectedIndex && 'bg-white/10'
-						)}
-					>
-						<div class="flex items-start gap-3">
-							<div class="flex h-6 w-6 flex-shrink-0 items-center justify-center">
-								{#if result.icon}
-									<Icon class="h-5 w-5" name={result.icon} />
-								{/if}
+						{#if api.results.length === 0 && !api.query.trim()}
+							<div class="space-y-3 px-4 py-4">
+								<div class="text-xs font-medium text-white/50">Available Plugins</div>
+								{#each api.plugins as plugin}
+									<button
+										onclick={() => api.selectPlugin(plugin)}
+										class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-white/10"
+									>
+										<Icon class="w-7" name={plugin.icon} />
+										<div class="flex-1">
+											<div class="text-sm font-medium text-white">{plugin.name}</div>
+											<div class="text-xs text-white/50">{plugin.description}</div>
+										</div>
+										<kbd class="rounded bg-white/10 px-2 py-1 font-mono text-xs text-white/50">
+											{plugin.prefix}
+										</kbd>
+									</button>
+								{/each}
 							</div>
-							<div class="min-w-0 flex-1 overflow-hidden">
-								<div class="truncate text-sm font-medium text-white">{result.title}</div>
-								{#if result.subtitle}
-									<div class="truncate text-xs text-white/50">{result.subtitle}</div>
-								{/if}
-							</div>
-							{#if index === api.selectedIndex && result.actions && result.actions.length > 0}
-								<div class="flex flex-shrink-0 items-center gap-1">
-									{#each result.actions as action}
-										<button
-											onclick={(e) => {
-												e.stopPropagation();
-												api.executeAction(result, action);
-											}}
-											class="rounded-md bg-white/10 px-2 py-1 text-xs font-medium text-white hover:bg-white/20"
-										>
-											{action.label}
-										</button>
-									{/each}
+						{/if}
+
+						{#each api.results as result, index}
+							<li
+								bind:this={api.resultElements[index]}
+								onmouseenter={() => api.handleMouseEnter(index)}
+								onclick={() => api.executeSelectedAction()}
+								class={cn(
+									'cursor-pointer border-b border-white/10 px-4 py-3 last:border-0',
+									index === api.selectedIndex && 'bg-white/10'
+								)}
+							>
+								<div class="flex items-start gap-3">
+									<div class="flex h-6 w-6 flex-shrink-0 items-center justify-center">
+										{#if result.icon}
+											<Icon class="h-5 w-5" name={result.icon} />
+										{/if}
+									</div>
+									<div class="min-w-0 flex-1 overflow-hidden">
+										<div class="truncate text-sm font-medium text-white">{result.title}</div>
+										{#if result.subtitle}
+											<div class="truncate text-xs text-white/50">{result.subtitle}</div>
+										{/if}
+									</div>
+									{#if index === api.selectedIndex && result.actions && result.actions.length > 0}
+										<div class="flex flex-shrink-0 items-center gap-1">
+											{#each result.actions as action}
+												<button
+													onclick={(e) => {
+														e.stopPropagation();
+														api.executeAction(result, action);
+													}}
+													class="rounded-md bg-white/10 px-2 py-1 text-xs font-medium text-white hover:bg-white/20"
+												>
+													{action.label}
+												</button>
+											{/each}
+										</div>
+									{/if}
 								</div>
-							{/if}
-						</div>
-					</li>
-				{/each}
-			</ul>
+							</li>
+						{/each}
+					</ul>
+				{/if}
+			</div>
 
 			<div
 				class="flex flex-shrink-0 items-center justify-between border-t border-white/10 bg-white/5 px-4 py-2 text-xs text-white/50"
@@ -160,14 +168,14 @@
 						</span>
 					</div>
 				{/if}
-				{#if api.results.length === 0}
+				{#if api.results.length === 0 && !api.htmlContent}
 					<span onclick={() => settingsStore.openSettings()} class="flex items-center gap-1">
 						<kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono"
 							>{settingsStore.settings.shortcuts.openSettings}</kbd
 						>
 						Settings
 					</span>
-				{:else}
+				{:else if api.results.length > 0}
 					<span>{api.results.length} results</span>
 				{/if}
 			</div>

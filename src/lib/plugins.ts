@@ -7,8 +7,12 @@ export interface Plugin {
   prefix: string
   icon: string
   config?: PluginConfig
-  search: (query: string) => Promise<PluginResult[]>
+  search: (query: string) => Promise<PluginResult[] | PluginHtmlResult>
   onPrefixActivate?: () => void
+}
+
+export interface PluginHtmlResult {
+  html: string
 }
 
 export interface PluginConfig {
@@ -40,7 +44,7 @@ export async function loadPlugins(): Promise<Plugin[]> {
       .map(pluginInfo => ({
         ...pluginInfo,
         search: async (query: string) => {
-          return await invoke<PluginResult[]>("search_plugin", { pluginId: pluginInfo.id, query })
+          return await invoke<PluginResult[] | PluginHtmlResult>("search_plugin", { pluginId: pluginInfo.id, query })
         }
       }))
   } catch (error) {

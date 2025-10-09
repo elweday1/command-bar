@@ -35,11 +35,11 @@ pub async fn execute_plugin_action(
 }
 
 #[tauri::command]
-pub async fn search_plugin(plugin_id: String, query: String) -> Vec<PluginResult> {
+pub async fn search_plugin(plugin_id: String, query: String) -> PluginSearchResult {
     if let Some(plugin) = get_loader().get_plugin(&plugin_id) {
         plugin.search(&query).await
     } else {
-        vec![]
+        PluginSearchResult::Results(vec![])
     }
 }
 

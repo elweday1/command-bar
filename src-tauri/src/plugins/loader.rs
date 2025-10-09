@@ -6,7 +6,7 @@ use std::future::Future;
 use std::path::Path;
 
 type GetInfoFn = extern "Rust" fn() -> Plugin;
-type SearchFn = extern "Rust" fn(String) -> Vec<PluginResult>;
+type SearchFn = extern "Rust" fn(String) -> PluginSearchResult;
 type ExecuteActionFn = extern "Rust" fn(String, String) -> Result<String, String>;
 
 struct DynamicPlugin {
@@ -22,7 +22,7 @@ impl PluginTrait for DynamicPlugin {
         (self.get_info)()
     }
 
-    async fn search(&self, query: &str) -> Vec<PluginResult> {
+    async fn search(&self, query: &str) -> PluginSearchResult {
         tokio::task::spawn_blocking({
             let search_fn = self.search;
             let query = query.to_string();
@@ -31,10 +31,10 @@ impl PluginTrait for DynamicPlugin {
                     search_fn(query)
                 })) {
                     Ok(results) => results,
-                    Err(_) => vec![]
+                    Err(_) => PluginSearchResult::Results(vec![])
                 }
             }
-        }).await.unwrap_or_default()
+        }).await.unwrap_or(PluginSearchResult::Results(vec![]))
     }
 
     fn execute_action(&self, result_id: &str, action_id: &str) -> Result<String, String> {
